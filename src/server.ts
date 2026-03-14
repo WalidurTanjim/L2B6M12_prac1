@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
 import { Pool } from "pg";
@@ -57,6 +57,14 @@ const initDB = async() => {
 
 initDB();
 
+
+// middelwares
+const logger = (req: Request, res: Response, next: NextFunction) => {
+     console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} ${req.url} ${req.baseUrl} ${req.originalUrl}`);
+     next();
+}
+
+
 // users
 // POST method
 app.post("/users", async(req: Request, res: Response) => {
@@ -91,7 +99,7 @@ app.post("/users", async(req: Request, res: Response) => {
 });
 
 // GET method
-app.get("/users", async(req: Request, res: Response) => {
+app.get("/users", logger, async(req: Request, res: Response) => {
      try{
           const result = await pool.query(`SELECT * FROM users`);
 
