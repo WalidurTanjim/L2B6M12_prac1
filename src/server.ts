@@ -241,6 +241,15 @@ app.put("/users/:id", async(req: Request, res: Response) => {
      }
 });
 
+// not found route (404)
+app.use((req: Request, res: Response) => {
+     res.status(404).json({
+          success: false,
+          message: "Route not found!",
+          path: req?.path
+     });
+});
+
 
 app.listen(port, () => {
   console.log(`L2B6M12_prac1 app listening on port ${port}`);
