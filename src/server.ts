@@ -344,6 +344,42 @@ app.get("/todos/:id", async(req: Request, res: Response) => {
      }
 });
 
+// DELETE mehtod
+app.delete("/todos/:id", async(req: Request, res: Response) => {
+     const { id } = req?.params;
+
+     if(!id) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid id is required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`DELETE FROM todos WHERE id=$1 RETURNING *`, [id]);
+
+          if(result?.rowCount === 0) {
+               res.status(404).json({
+                    success: false,
+                    message: "Todo not found!",
+                    data: null
+               });
+          }
+
+          res.status(204).send();
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+});
+
 
 // not found route (404)
 app.use((req: Request, res: Response) => {
