@@ -57,9 +57,65 @@ const initDB = async() => {
 
 initDB();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello Next Level Developers');
+// users
+// POST method
+app.post("/users", async(req: Request, res: Response) => {
+     const { name, email } = await req?.body;
+
+     if(!name || !email) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid name & email required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`, [name, email]);
+
+          res.status(201).json({
+               success: true,
+               message: "User insert successfully",
+               data: result?.rows[0]
+          });
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
 });
+
+// GET method
+app.get("/users", async(req: Request, res: Response) => {
+     try{
+          const result = await pool.query(`SELECT * FROM users`);
+
+          if(result?.rows.length > 0) {
+               res.status(200).json({
+                    success: false,
+                    message: "Users fetched successfully",
+                    data: result?.rows
+               });
+          }else{
+               res.status(404).json({
+                    success: false,
+                    message: "Users not found",
+                    data: null
+               });
+          }
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+     }
+})
 
 app.listen(port, () => {
   console.log(`L2B6M12_prac1 app listening on port ${port}`);
