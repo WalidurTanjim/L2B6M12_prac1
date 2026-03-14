@@ -305,6 +305,45 @@ app.get("/todos", async(req: Request, res: Response) => {
      }
 });
 
+app.get("/todos/:id", async(req: Request, res: Response) => {
+     const { id } = req?.params;
+
+     if(!id) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid Id is required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`SELECT * FROM todos WHERE id=$1`, [id]);
+
+          if(result?.rows.length > 0){
+               res.status(200).json({
+                    success: true,
+                    message: "Todo fetched successfully",
+                    data: result?.rows[0]
+               });
+          }else{
+               res.status(404).json({
+                    success: false,
+                    message: "Todo not found!",
+                    data: null
+               });
+          }
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+});
+
 
 // not found route (404)
 app.use((req: Request, res: Response) => {
