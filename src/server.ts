@@ -275,6 +275,36 @@ app.post("/todos", async(req: Request, res: Response) => {
      }
 });
 
+// GET method
+app.get("/todos", async(req: Request, res: Response) => {
+     try{
+          const result = await pool.query(`SELECT * FROM todos`);
+
+          if(result?.rows.length > 0){
+               res.status(200).json({
+                    success: true,
+                    message: "Todos fetched successfully",
+                    data: result?.rows
+               });
+          }else{
+               res.status(404).json({
+                    success: false,
+                    message: "Todos not found!",
+                    data: null
+               });
+          }
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+});
+
 
 // not found route (404)
 app.use((req: Request, res: Response) => {
