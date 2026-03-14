@@ -117,6 +117,47 @@ app.get("/users", async(req: Request, res: Response) => {
      }
 })
 
+app.get("/users/:id", async(req: Request, res: Response) => {
+     const { id } = req?.params;
+
+     if(!id) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid id is required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`SELECT * FROM users WHERE id=$1`, [id]);
+
+          if(result?.rows.length > 0){
+               res.status(200).json({
+                    success: true,
+                    message: "User fetched successfully",
+                    data: result?.rows[0]
+               });
+          }else{
+               res.status(404).json({
+                    success: false,
+                    message: "User not found!",
+                    data: null
+               });
+          }
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+})
+
+
+
 app.listen(port, () => {
   console.log(`L2B6M12_prac1 app listening on port ${port}`);
 });
