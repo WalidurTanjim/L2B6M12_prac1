@@ -192,6 +192,55 @@ app.delete("/users/:id", async(req: Request, res: Response) => {
      }
 });
 
+// PUT method
+app.put("/users/:id", async(req: Request, res: Response) => {
+     const { id } = req?.params;
+     const { name, email } = await req?.body;
+
+     if(!id) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid id is required",
+               data: null
+          });
+     }
+
+     if(!name || !email) {
+          return res.status(400).json({
+               success: false,
+               message: "Valid name & email is required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`UPDATE users SET name=$1, email=$2 WHERE id=$3 RETURNING *`, [name, email, id]);
+
+          if(result?.rowCount === 0){
+               res.status(404).json({
+                    success: false,
+                    message: "User not found!",
+                    data: null
+               });
+          }else{
+               res.status(201).json({
+                    success: true,
+                    message: "User updated successfully",
+                    data: result?.rows[0]
+               });
+          }
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+});
+
 
 app.listen(port, () => {
   console.log(`L2B6M12_prac1 app listening on port ${port}`);
