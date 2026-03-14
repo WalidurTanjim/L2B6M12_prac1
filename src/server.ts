@@ -241,6 +241,41 @@ app.put("/users/:id", async(req: Request, res: Response) => {
      }
 });
 
+
+// todos
+// POST method
+app.post("/todos", async(req: Request, res: Response) => {
+     const { user_id, title } = await req?.body;
+
+     if(!user_id || !title) {
+          return res.status(400).json({
+               success: false,
+               message: "User Id & Title is required",
+               data: null
+          });
+     }
+
+     try{
+          const result = await pool.query(`INSERT INTO todos(user_id, title) VALUES($1, $2) RETURNING *`, [user_id, title]);
+
+          res.status(201).json({
+               success: true,
+               message: "Todo inserted succssfully",
+               data: result?.rows[0]
+          });
+     }catch(err: any) {
+          res.status(500).json({
+               success: false,
+               message: "Something went wrong!",
+               data: null
+          });
+
+          console.error(err);
+          console.error(err?.message);
+     }
+});
+
+
 // not found route (404)
 app.use((req: Request, res: Response) => {
      res.status(404).json({
